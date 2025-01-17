@@ -177,7 +177,7 @@ new StaticWebsite(this, 'StaticWebsite', {
 - [AWS Project Development Kit (PDK)](https://aws.github.io/aws-pdk/) で定義のあるコンストラクト
 - PDK 特有の実装が多く、やや複雑
 - カスタムリソースによる WebACL の動的生成を利用し IP 制限をサポート
-- cdk-nag に対応している
+- pdk-nag に対応しているらしい
 - :rotating_light: カスタムドメインで利用するとき: 証明書・DNSレコードは生成されない
 
 </span>
@@ -206,7 +206,27 @@ new ARecord(this, 'AliasRecord', {
 ## pdk-nag って？
 
 - `cdk-nag` のラッパー、`cdk-nag` より少し設定がマイルドそう（ `AwsSolutionsChecks` のプロジェクトで `pdk/static-website` を利用しようとしたら違反が少し出た）
-- [`AwsPrototyping`](https://github.com/aws/aws-pdk/tree/22771cbe4d3ec3186104dcea14da0eeeaaa5fb79/packages/pdk-nag/src/packs) という独自の cdk-nag ルールを定めている
+- [`AwsPrototyping`](https://github.com/aws/aws-pdk/tree/22771cbe4d3ec3186104dcea14da0eeeaaa5fb79/packages/pdk-nag/src/packs) という独自の cdk-nag ルールを定めて、これに準拠している
+  - プロジェクトで cdk-nag をすでに利用している場合は要検討
+
+---
+
+## @aws/pdk/static-website を使ってみる
+
+ハマりポイントはほとんどなかった、2点だけ
+
+- CloudFront の証明書を利用する場合、 `us-east-1` を要求される
+  - 証明書を同じスタック内で作成する場合、スタック丸ごと `us-east-1` にする必要がある
+- 全部よしなにやってくれるつもりでいると、カスタムドメインの設定がうまくいかない
+  - `distributionProps` でドメイン設定したつもりが、 A レコードはないのでアクセスできない
+
+---
+
+## @aws/pdk/static-website を使ってみる
+
+作成されるリソース
+
+<img src="images/resources.png" style="width: 600px; height: 392px;"/>
 
 ---
 
