@@ -87,11 +87,11 @@ src: [daikw/slides](https://github.com/daikw/slides)
 
 <span style="font-size: 25px;">
 
-| パッケージ名                                                                                                                         | バージョン<br>(最新) | ダウンロード<br>[weekly] | cdk-nag | 複雑さ <br> (私見) |
-| ------------------------------------------------------------------------------------------------------------------------------------ | -------------------- | :----------------------: | :-----: | :----------------: |
-| [cdk-spa-deploy](https://constructs.dev/packages/cdk-spa-deploy/v/2.0.0-alpha.1?lang=typescript)                                     | 2.0.0-alpha.1        |           636            |    🆖    |         低         |
-| [@cloudcomponents/cdk-static-website](https://constructs.dev/packages/@cloudcomponents/cdk-static-website/v/2.2.0?lang=typescript)   | 2.2.0                |           230            |    🆖    |         中         |
-| [@aws-prototyping-sdk/static-website](https://constructs.dev/packages/@aws-prototyping-sdk/static-website/v/0.19.68?lang=typescript) | 0.19.68              |           114            |    ✅    |         高         |
+| パッケージ名                                                                                                                       | バージョン<br>(最新) | ダウンロード<br>[weekly] | cdk-nag | 複雑さ <br> (私見) |
+| ---------------------------------------------------------------------------------------------------------------------------------- | -------------------- | :----------------------: | :-----: | :----------------: |
+| [cdk-spa-deploy](https://constructs.dev/packages/cdk-spa-deploy/v/2.0.0-alpha.1?lang=typescript)                                   | 2.0.0-alpha.1        |           636            |    🆖    |         低         |
+| [@cloudcomponents/cdk-static-website](https://constructs.dev/packages/@cloudcomponents/cdk-static-website/v/2.2.0?lang=typescript) | 2.2.0                |           230            |    🆖    |         中         |
+| [@aws/pdk/static-website](https://constructs.dev/packages/@aws/pdk/static-website/v/0.19.68?lang=typescript)                       | 0.19.68              |           114            |    ✅    |         高         |
 
 </span>
 
@@ -112,7 +112,7 @@ src: [daikw/slides](https://github.com/daikw/slides)
 | ----------------------------------- | --------------------- | ---------------------------------------------- |
 | cdk-spa-deploy                      | :x: 設定なし          | 古いものを利用 (CloudFrontWebDistributionなど) |
 | @cloudcomponents/cdk-static-website | 既存の WebACL を利用  | 古いものを利用 (CloudFrontWebDistributionなど) |
-| @aws-prototyping-sdk/static-website | :o: WebACL を自動生成 | 最新を利用 (Distributionなど)                  |
+| @aws/pdk/static-website             | :o: WebACL を自動生成 | 最新を利用 (Distributionなど)                  |
 
 参考:
 
@@ -170,7 +170,7 @@ new StaticWebsite(this, 'StaticWebsite', {
 
 ---
 
-## @aws-prototyping-sdk/static-website
+## @aws/pdk/static-website
 
 <span style="font-size: 25px;">
 
