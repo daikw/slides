@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>Hello, GitLab Pages</title>
+  <style>
+    /* ページ全体のリセット */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* 背景のアニメーション用グラデーション */
+    body {
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(-45deg, #FF00D4, #00FFD4, #FFFF00, #FFA500);
+      background-size: 400% 400%;
+      animation: gradientBG 8s ease infinite;
+      overflow: hidden; /* confetti の落下を見せるため隠さない */
+      font-family: "Impact", "Arial Black", sans-serif;
+    }
+    @keyframes gradientBG {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    /* 大きくデコったテキスト */
+    h1 {
+      position: relative;
+      top: 50%;
+      transform: translateY(-50%);
+      text-align: center;
+      font-size: 12vw; /* ビューポートに対して可変サイズ */
+      color: #ffffff;
+      text-shadow:
+        0 0 10px #FFF,
+        0 0 20px #0FF,
+        0 0 40px #0FF,
+        0 0 80px #0FF,
+        0 0 160px #0FF;
+      /* 上下にゆらゆらするアニメーション */
+      animation: floatText 3s ease-in-out infinite alternate;
+    }
+    @keyframes floatText {
+      from {
+        transform: translateY(-50%) translateX(0);
+      }
+      to {
+        transform: translateY(-55%) translateX(0);
+      }
+    }
+
+    /* テキストの周辺を光らせるための疑似要素(ネオンサイン風) */
+    h1::before, h1::after {
+      content: "Hello, GitLab Pages";
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%) translateY(-50%);
+      color: transparent;
+      text-shadow:
+        0 0 15px #FFF,
+        0 0 25px #FF00D4,
+        0 0 35px #FF00D4,
+        0 0 45px #FF00D4,
+        0 0 80px #FF00D4,
+        0 0 90px #FF00D4,
+        0 0 120px #FF00D4,
+        0 0 150px #FF00D4;
+      z-index: -1;
+    }
+    h1::before {
+      animation: neonGlow1 2s ease-in-out infinite alternate;
+    }
+    h1::after {
+      animation: neonGlow2 2s ease-in-out infinite alternate;
+    }
+    @keyframes neonGlow1 {
+      0% {
+        opacity: 0.6;
+      }
+      100% {
+        opacity: 0.9;
+      }
+    }
+    @keyframes neonGlow2 {
+      0% {
+        opacity: 0.4;
+      }
+      100% {
+        opacity: 0.8;
+      }
+    }
+
+    /* 回転＆拡大縮小アニメーションを加えた飾り円 */
+    .decor-circle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.5;
+      animation: circleAnim 10s linear infinite;
+      mix-blend-mode: screen;
+      pointer-events: none; /* マウス操作を通過 */
+    }
+    @keyframes circleAnim {
+      0% {
+        transform: scale(0.5) rotate(0deg);
+      }
+      50% {
+        transform: scale(1.2) rotate(180deg);
+      }
+      100% {
+        transform: scale(0.5) rotate(360deg);
+      }
+    }
+
+    /* confetti (紙吹雪) のベース */
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      animation: confetti-fall 5s linear infinite;
+    }
+    @keyframes confetti-fall {
+      0% {
+        transform: translateY(-15%) rotateZ(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(110%) rotateZ(720deg);
+        opacity: 0;
+      }
+    }
+  </style>
+
+  <script>
+    // ページ読み込み時に自動的にデコを生成
+    document.addEventListener("DOMContentLoaded", function() {
+      // confetti を多数散りばめる
+      for (let i = 0; i < 100; i++) {
+        let confetti = document.createElement("div");
+        confetti.classList.add("confetti");
+        // ランダム位置、色、大きさ、アニメーションの遅延を設定
+        confetti.style.left = Math.random() * 100 + "vw";
+        confetti.style.animationDelay = Math.random() * 5 + "s";
+        confetti.style.backgroundColor = "hsl(" + Math.random() * 360 + ", 100%, 50%)";
+        confetti.style.width = (Math.random() * 15 + 5) + "px";
+        confetti.style.height = confetti.style.width;
+        document.body.appendChild(confetti);
+      }
+
+      // 飾り円をいくつか配置
+      for (let i = 0; i < 8; i++) {
+        let circle = document.createElement("div");
+        circle.classList.add("decor-circle");
+        let size = 200 + Math.random() * 300; // 200px ～ 500px
+        circle.style.width = size + "px";
+        circle.style.height = size + "px";
+        circle.style.background = "radial-gradient(circle, rgba(255,255,255,0.6), transparent)";
+        // ランダム配置
+        circle.style.left = Math.random() * 100 + "vw";
+        circle.style.top = Math.random() * 100 + "vh";
+        // アニメーションディレイと速度をランダム化
+        circle.style.animationDelay = Math.random() * 5 + "s";
+        circle.style.animationDuration = (5 + Math.random() * 10) + "s";
+
+        document.body.appendChild(circle);
+      }
+    });
+  </script>
+</head>
+<body>
+  <h1>Hello CDK</h1>
+</body>
+</html>
