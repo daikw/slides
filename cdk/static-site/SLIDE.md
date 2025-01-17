@@ -13,7 +13,8 @@ _paginate: false
 _header: ""
 -->
 
-@[クラスメソッドのAWS CDK事情大公開スペシャル#2 - connpass](https://classmethod.connpass.com/event/337711/)
+at: [クラスメソッドのAWS CDK事情大公開スペシャル#2 - connpass](https://classmethod.connpass.com/event/337711/)
+src: [daikw/slides](https://github.com/daikw/slides)
 
 ---
 
@@ -107,11 +108,11 @@ _header: ""
 
 <span style="font-size: 23px;">
 
-| パッケージ名                        | WebACL                | CloudFront                                                                                                                                   |
-| ----------------------------------- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| cdk-spa-deploy                      | :x: 設定なし          | :warning: [CloudFrontWebDistribution](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_cloudfront.CloudFrontWebDistribution.html) |
-| @cloudcomponents/cdk-static-website | 既存の WebACL を利用  | :warning: [CloudFrontWebDistribution](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_cloudfront.CloudFrontWebDistribution.html) |
-| @aws-prototyping-sdk/static-website | :o: WebACL を自動生成 | [Distribution](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_cloudfront.Distribution.html)                                     |
+| パッケージ名                        | WebACL                | CDK API                                        |
+| ----------------------------------- | --------------------- | ---------------------------------------------- |
+| cdk-spa-deploy                      | :x: 設定なし          | 古いものを利用 (CloudFrontWebDistributionなど) |
+| @cloudcomponents/cdk-static-website | 既存の WebACL を利用  | 古いものを利用 (CloudFrontWebDistributionなど) |
+| @aws-prototyping-sdk/static-website | :o: WebACL を自動生成 | 最新を利用 (Distributionなど)                  |
 
 参考:
 
@@ -124,17 +125,19 @@ _header: ""
 
 ## cdk-spa-deploy
 
+<span style="font-size: 25px;">
+
 - シンプルな単一ファイルからなるコンストラクト
 - ダウンロード数が多い
 - カスタムドメインで利用するとき: 証明書・DNSレコードまでまとめて生成される
-
-<span style="font-size: 25px;">
+- :warning: 利用されている API が古い ([CloudFrontWebDistribution](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_cloudfront.CloudFrontWebDistribution.html), [DnsValidatedCertificate](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_certificatemanager.DnsValidatedCertificate.html))
 
 ```ts
-new SPADeploy(this, 'cfDeploy')
+new SPADeploy(this, 'SPADeploy')
   .createSiteWithCloudfront({
     indexDoc: 'index.html',
     websiteFolder: 'path/to/your/static/webpage',
+    cfAliases: [yourDomainName]
   });
 ```
 
@@ -144,15 +147,22 @@ new SPADeploy(this, 'cfDeploy')
 
 ## @cloudcomponents/cdk-static-website
 
+<span style="font-size: 25px;">
+
 - GitHub Organization が一人でメンテされている: [hupe1980 (Frank Hübner)](https://github.com/hupe1980)
 - カスタムドメインで利用するとき: DNSレコードは生成される、証明書は生成されない
-
-<span style="font-size: 18px;">
+- :warning: 利用されている API が古い ([CloudFrontWebDistribution](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_cloudfront.CloudFrontWebDistribution.html)), 証明書周りが、なんか、動かなそう ...？
 
 ```ts
 new StaticWebsite(this, 'StaticWebsite', {
-  hostedZone,
-  domainNames: ['cloudcomponents.org', 'www.cloudcomponents.org'],
+  bucketConfiguration: {
+    source: 'path/to/your/static/webpage',
+  },
+  aliasConfiguration: {
+    domainName: 'domain.com',
+    names: ['www.domain.com', 'domain.com'],
+    acmCertRef: certificateArn,
+  },
 });
 ```
 
@@ -176,7 +186,7 @@ new StaticWebsite(this, 'StaticWebsite', {
 
 ```ts
 const staticWebsite = new StaticWebsite(this, 'StaticWebsite', {
-  websiteContentPath: 'dist',
+  websiteContentPath: 'path/to/your/static/webpage',
   distributionProps: {
     domainNames: [yourDomainName],
     certificate,
@@ -195,7 +205,7 @@ new ARecord(this, 'AliasRecord', {
 
 ## pdk-nag って？
 
-- `cdk-nag` のラッパー、`cdk-nag` より少し設定がマイルドらしい
+- `cdk-nag` のラッパー、`cdk-nag` より少し設定がマイルドそう（ `AwsSolutionsChecks` のプロジェクトで `pdk/static-website` を利用しようとしたら違反が少し出た）
 - [`AwsPrototyping`](https://github.com/aws/aws-pdk/tree/22771cbe4d3ec3186104dcea14da0eeeaaa5fb79/packages/pdk-nag/src/packs) という独自の cdk-nag ルールを定めている
 
 ---
