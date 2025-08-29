@@ -1,2 +1,4 @@
 *.pdf
 *_original
+site/
+node_modules/

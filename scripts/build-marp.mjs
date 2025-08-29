@@ -76,6 +76,12 @@ function copyIfExists(src, dest) {
   }
 }
 
+function resolveMarpBin() {
+  const binName = process.platform === 'win32' ? 'marp.cmd' : 'marp'
+  const local = path.join(repoRoot, 'node_modules', '.bin', binName)
+  return fs.existsSync(local) ? local : 'marp'
+}
+
 function renderWithMarp(inputFile, outputFile) {
   const args = [
     inputFile,
@@ -84,7 +90,8 @@ function renderWithMarp(inputFile, outputFile) {
     '--output',
     outputFile,
   ];
-  const res = spawnSync('marp', args, { stdio: 'inherit' });
+  const marpCmd = resolveMarpBin();
+  const res = spawnSync(marpCmd, args, { stdio: 'inherit' });
   if (res.error || res.status !== 0) {
     throw new Error(
       `Marp failed for ${inputFile}: ${res.error ? res.error.message : res.status}`,
