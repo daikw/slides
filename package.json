@@ -1,15 +1,14 @@
 {
   "name": "slides",
-  "private": true,
-  "version": "0.0.0",
-  "license": "UNLICENSED",
+  "version": "1.0.0",
   "scripts": {
     "build": "node scripts/build-marp.mjs"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "devDependencies": {
-    "@marp-team/marp-cli": "^3.4.0",
-    "@marp-team/marp-core": "^4.1.1",
-    "markdown-it-plantuml": "^1.5.0"
+    "@marp-team/marp-cli": "^4.2.3",
+    "markdown-it-plantuml": "^1.4.1"
   }
 }
-
