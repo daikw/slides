@@ -76,6 +76,57 @@ function copyIfExists(src, dest) {
   }
 }
 
+function sanitizeAndResolveAsset(srcDir, relPath) {
+  // strip query/hash
+  const cleaned = relPath.split('#')[0].split('?')[0];
+  const resolved = path.resolve(srcDir, cleaned);
+  // prevent path traversal out of repo
+  if (!resolved.startsWith(repoRoot)) return null;
+  return { resolved, cleaned };
+}
+
+function extractLocalImageRefs(md) {
+  const refs = new Set();
+  // Markdown image: ![alt](path "title")
+  const mdImg = /!\[[^\]]*\]\(([^)]+)\)/g;
+  let m;
+  while ((m = mdImg.exec(md))) {
+    const inside = m[1].trim();
+    const p = inside.replace(/\s+"[^"]*"$/, ''); // drop optional title
+    refs.add(p);
+  }
+  // HTML <img src="...">
+  const htmlImg = /<img[^>]+src=["']([^"']+)["']/gi;
+  while ((m = htmlImg.exec(md))) refs.add(m[1]);
+
+  // Filter to local relative resources
+  return [...refs].filter((p) => {
+    if (!p) return false;
+    const lower = p.toLowerCase();
+    if (lower.startsWith('http://') || lower.startsWith('https://') || lower.startsWith('data:')) return false;
+    if (p.startsWith('mailto:') || p.startsWith('#')) return false;
+    if (p.startsWith('/')) return false; // absolute from domain root - not supported here
+    return true;
+  });
+}
+
+function copyAssetFile(srcDir, outDir, relAssetPath) {
+  const info = sanitizeAndResolveAsset(srcDir, relAssetPath);
+  if (!info) return false;
+  const { resolved, cleaned } = info;
+  if (!fs.existsSync(resolved)) return false;
+  const relFromSrc = path.relative(srcDir, resolved);
+  const destPath = path.join(outDir, relFromSrc);
+  ensureDir(path.dirname(destPath));
+  const stat = fs.statSync(resolved);
+  if (stat.isDirectory()) {
+    fs.cpSync(resolved, destPath, { recursive: true });
+  } else {
+    fs.copyFileSync(resolved, destPath);
+  }
+  return true;
+}
+
 function resolveMarpBin() {
   const binName = process.platform === 'win32' ? 'marp.cmd' : 'marp'
   const local = path.join(repoRoot, 'node_modules', '.bin', binName)
@@ -194,6 +245,17 @@ function main() {
     // Copy common asset directories if present
     copyIfExists(path.join(srcDir, 'images'), path.join(outDir, 'images'));
     copyIfExists(path.join(srcDir, 'assets'), path.join(outDir, 'assets'));
+    copyIfExists(path.join(srcDir, 'files'), path.join(outDir, 'files'));
+
+    // Copy image assets referenced in Markdown (best-effort)
+    const refs = extractLocalImageRefs(md);
+    for (const ref of refs) {
+      try {
+        copyAssetFile(srcDir, outDir, ref);
+      } catch (e) {
+        console.warn(`Warn: Failed to copy asset '${ref}' for ${rel}: ${e.message}`);
+      }
+    }
 
     const title = extractTitle(md) || path.basename(relDir) || rel;
     slides.push({ rel, relDir, title });

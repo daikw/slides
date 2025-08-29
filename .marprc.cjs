@@ -9,7 +9,6 @@ module.exports = {
   engine: (opts) =>
     new Marp({ ...opts, html: true }).use(require('markdown-it-plantuml'), {
       // Use HTTPS PlantUML server for generated images
-      server: 'https://www.plantuml.com/plantuml/',
+      server: 'https://www.plantuml.com/plantuml',
     }),
 }
-
