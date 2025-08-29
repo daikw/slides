@@ -99,7 +99,7 @@ function writeIndex(slides) {
   const items = slides
     .map(
       (s) =>
-        `<li><a href="/${s.relDir}/">${escapeHtml(s.title || s.rel)}</a><span class="path"> /${s.relDir}/</span></li>`,
+        `<li><a href="${s.relDir}/">${escapeHtml(s.title || s.rel)}</a><span class="path"> ${s.relDir}/</span></li>`,
     )
     .join('\n');
 
@@ -204,4 +204,3 @@ function main() {
 }
 
 main();
-

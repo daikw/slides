@@ -22,9 +22,6 @@ src: [daikw/slides](https://github.com/daikw/slides)
 
 <div style="display: flex; align-items: center;">
   <div style="flex: 1; padding: 10px;">
-  <img src="images/intro.jpg" style="width: 450px; height: 450px;"/>
-  </div>
-  <div style="flex: 1; padding: 10px;">
     <a href="https://github.com/daikw">
       daikw (Daiki Watanabe)
       <img src="https://github.com/daikw.png" width=30px/>
