@@ -155,10 +155,11 @@ function writeIndex(slides) {
   slides.sort((a, b) => a.rel.localeCompare(b.rel));
 
   const items = slides
-    .map(
-      (s) =>
-        `<li><a href="${s.relDir}/">${escapeHtml(s.title || s.rel)}</a><span class="path"> ${s.relDir}/</span></li>`,
-    )
+    .map((s) => {
+      const link = s.outRelDir ? `${s.outRelDir}/` : './';
+      const label = s.outRelDir || s.rel;
+      return `<li><a href="${link}">${escapeHtml(s.title || label)}</a><span class="path"> ${link}</span></li>`;
+    })
     .join('\n');
 
   const html = `<!doctype html>
@@ -232,8 +233,9 @@ function main() {
     if (!hasMarpFrontmatter(md)) continue;
 
     const relDir = path.dirname(rel); // relative source dir
+    const outRelDir = relDir === 'src' ? '' : relDir.startsWith(`src${path.sep}`) ? relDir.slice(4) : relDir;
     const srcDir = path.dirname(full);
-    const outDir = path.join(outRoot, relDir);
+    const outDir = path.join(outRoot, outRelDir);
     const outHtml = path.join(outDir, 'index.html');
 
     ensureDir(outDir);
@@ -257,8 +259,8 @@ function main() {
       }
     }
 
-    const title = extractTitle(md) || path.basename(relDir) || rel;
-    slides.push({ rel, relDir, title });
+    const title = extractTitle(md) || path.basename(outRelDir || relDir) || rel;
+    slides.push({ rel, relDir, outRelDir, title });
   }
 
   if (slides.length === 0) {
