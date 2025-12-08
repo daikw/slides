@@ -133,6 +133,32 @@ function resolveMarpBin() {
   return fs.existsSync(local) ? local : 'marp'
 }
 
+function getGitCreatedDate(filePath) {
+  // Get the date of the first commit that added this file
+  const res = spawnSync('git', [
+    'log',
+    '--format=%aI',
+    '--diff-filter=A',
+    '--follow',
+    '--',
+    filePath,
+  ], { cwd: repoRoot, encoding: 'utf8' });
+
+  if (res.error || res.status !== 0 || !res.stdout.trim()) {
+    return null;
+  }
+
+  // Take the last line (oldest commit date for this file)
+  const lines = res.stdout.trim().split('\n');
+  const isoDate = lines[lines.length - 1];
+
+  // Parse and format as YYYY-MM-DD
+  const date = new Date(isoDate);
+  if (isNaN(date.getTime())) return null;
+
+  return date.toISOString().split('T')[0];
+}
+
 function renderWithMarp(inputFile, outputFile) {
   const args = [
     inputFile,
@@ -184,6 +210,31 @@ function injectOgpMeta(htmlFile, title, ogpImageUrl, pageUrl) {
 
   // Insert OGP tags before </head>
   html = html.replace('</head>', `${ogpTags}\n</head>`);
+
+  fs.writeFileSync(htmlFile, html, 'utf8');
+}
+
+function injectCreatedDate(htmlFile, createdDate) {
+  if (!createdDate) return;
+
+  let html = fs.readFileSync(htmlFile, 'utf8');
+
+  // CSS to display created date only on the title slide (first slide)
+  const dateStyle = `
+  <style>
+    /* Created date footer - displayed only on title slide */
+    section[id="1"]::before {
+      content: "Created: ${createdDate}";
+      position: absolute;
+      left: 30px;
+      bottom: 21px;
+      font-size: 12px;
+      color: rgba(128, 128, 128, 0.8);
+    }
+  </style>`;
+
+  // Insert style before </head>
+  html = html.replace('</head>', `${dateStyle}\n</head>`);
 
   fs.writeFileSync(htmlFile, html, 'utf8');
 }
@@ -292,6 +343,13 @@ function main() {
     const pageUrl = outRelDir ? `${SITE_BASE_URL}/${outRelDir}/` : `${SITE_BASE_URL}/`;
     const ogpImageUrl = outRelDir ? `${SITE_BASE_URL}/${outRelDir}/ogp.png` : `${SITE_BASE_URL}/ogp.png`;
     injectOgpMeta(outHtml, title, ogpImageUrl, pageUrl);
+
+    // Inject created date from git history
+    const createdDate = getGitCreatedDate(full);
+    if (createdDate) {
+      console.log(`  Created date: ${createdDate}`);
+      injectCreatedDate(outHtml, createdDate);
+    }
 
     // Copy common asset directories if present
     copyIfExists(path.join(srcDir, 'images'), path.join(outDir, 'images'));
