@@ -247,7 +247,8 @@ function writeIndex(slides) {
     .map((s) => {
       const link = s.outRelDir ? `${s.outRelDir}/` : './';
       const label = s.outRelDir || s.rel;
-      return `<li><a href="${link}">${escapeHtml(s.title || label)}</a><span class="path"> ${link}</span></li>`;
+      const dateStr = s.createdDate ? `<span class="date">${s.createdDate}</span>` : '';
+      return `<li>${dateStr}<a href="${link}">${escapeHtml(s.title || label)}</a><span class="path"> ${link}</span></li>`;
     })
     .join('\n');
 
@@ -265,6 +266,7 @@ function writeIndex(slides) {
     a { text-decoration: none; color: #2563eb; }
     a:hover { text-decoration: underline; }
     .path { color: #6b7280; margin-left: 0.4rem; font-size: .9em; }
+    .date { color: #9ca3af; margin-right: 0.6rem; font-size: .85em; font-family: monospace; }
     footer { margin-top: 2rem; color: #6b7280; font-size: .9em; }
     .note { margin-top: .5rem; color: #6b7280; }
   </style>
@@ -366,7 +368,7 @@ function main() {
       }
     }
 
-    slides.push({ rel, relDir, outRelDir, title });
+    slides.push({ rel, relDir, outRelDir, title, createdDate });
   }
 
   if (slides.length === 0) {
