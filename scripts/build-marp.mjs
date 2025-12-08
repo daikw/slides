@@ -150,6 +150,44 @@ function renderWithMarp(inputFile, outputFile) {
   }
 }
 
+function renderOgpImage(inputFile, outputFile) {
+  const args = [
+    inputFile,
+    '--image', 'png',
+    '--allow-local-files',
+    '--output',
+    outputFile,
+  ];
+  const marpCmd = resolveMarpBin();
+  const res = spawnSync(marpCmd, args, { stdio: 'inherit' });
+  if (res.error || res.status !== 0) {
+    throw new Error(
+      `Marp OGP image failed for ${inputFile}: ${res.error ? res.error.message : res.status}`,
+    );
+  }
+}
+
+const SITE_BASE_URL = 'https://daikw.github.io/slides';
+
+function injectOgpMeta(htmlFile, title, ogpImageUrl, pageUrl) {
+  let html = fs.readFileSync(htmlFile, 'utf8');
+
+  const ogpTags = `
+  <!-- OGP meta tags -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="${escapeHtml(title)}" />
+  <meta property="og:image" content="${ogpImageUrl}" />
+  <meta property="og:url" content="${pageUrl}" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="${escapeHtml(title)}" />
+  <meta name="twitter:image" content="${ogpImageUrl}" />`;
+
+  // Insert OGP tags before </head>
+  html = html.replace('</head>', `${ogpTags}\n</head>`);
+
+  fs.writeFileSync(htmlFile, html, 'utf8');
+}
+
 function writeIndex(slides) {
   // Sort by path for stable order
   slides.sort((a, b) => a.rel.localeCompare(b.rel));
@@ -240,9 +278,20 @@ function main() {
 
     ensureDir(outDir);
 
+    // Render OGP image (title slide as PNG)
+    const outOgp = path.join(outDir, 'ogp.png');
+    console.log(`Rendering OGP image ${rel} -> ${path.relative(repoRoot, outOgp)}`);
+    renderOgpImage(full, outOgp);
+
     // Render HTML slide
     console.log(`Rendering ${rel} -> ${path.relative(repoRoot, outHtml)}`);
     renderWithMarp(full, outHtml);
+
+    // Inject OGP meta tags into generated HTML
+    const title = extractTitle(md) || path.basename(outRelDir || relDir) || rel;
+    const pageUrl = outRelDir ? `${SITE_BASE_URL}/${outRelDir}/` : `${SITE_BASE_URL}/`;
+    const ogpImageUrl = outRelDir ? `${SITE_BASE_URL}/${outRelDir}/ogp.png` : `${SITE_BASE_URL}/ogp.png`;
+    injectOgpMeta(outHtml, title, ogpImageUrl, pageUrl);
 
     // Copy common asset directories if present
     copyIfExists(path.join(srcDir, 'images'), path.join(outDir, 'images'));
@@ -259,7 +308,6 @@ function main() {
       }
     }
 
-    const title = extractTitle(md) || path.basename(outRelDir || relDir) || rel;
     slides.push({ rel, relDir, outRelDir, title });
   }
 
