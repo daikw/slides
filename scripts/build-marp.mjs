@@ -19,11 +19,13 @@ const outRoot = path.join(repoRoot, 'site');
 const IGNORE_DIRS = new Set([
   '.git',
   '.github',
+  '.claude',
   'node_modules',
   'site',
   '.next',
   'dist',
   'build',
+  'docs',
 ]);
 
 /**
