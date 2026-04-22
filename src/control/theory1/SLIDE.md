@@ -89,7 +89,7 @@ style: |
 ## ゴール
 
 - 制御理論の目的を押さえる
-- 古典制御 / 現代制御 / Physical AI の違いを、**表現・設計対象・得意領域**の軸で整理
+- 古典制御 / 現代制御 / Physical AI を、**対象世界** と **工学パラダイム** の 2 軸で整理
 - どの課題にどの技術が向くか、見当がつく状態にする
 
 ---
@@ -128,8 +128,7 @@ style: |
 - **限界**: 多変数・状態制約・複雑な相互作用・強い非線形への拡張が難しい
 
 <div class="small box" style="margin-top: 14px;">
-<div class="small"><b>いまも産業機器の中核</b> (「古典」は「時代遅れ」の意ではない)。</div>
-<div class="small" style="margin-top: 10px;">PID / ループ整形 / 根軌跡 / 2自由度制御など、<b>代表的な手法群</b>の地図 → [12]</div>
+<b>いまも産業機器の中核</b>。「古典」≠「時代遅れ」。
 </div>
 
 <!--
@@ -149,8 +148,7 @@ style: |
 - **限界**: モデル品質と線形化への依存が強い・知覚や意味理解は対象外
 
 <div class="small box" style="margin-top: 14px;">
-<div class="small">「出力だけ」ではなく、<b>内部状態を含めて設計する</b>見方。</div>
-<div class="small" style="margin-top: 10px;">最適制御 / MPC / ロバスト / 適応など、<b>代表的な手法群</b>の一覧 → [12]</div>
+「出力だけ」ではなく、<b>内部状態を含めて設計する</b>見方。
 </div>
 
 <!--
@@ -197,6 +195,7 @@ style: |
   <li><b>合成:</b> 古典=経験則的チューニング (PID tuning) ／ 現代=最適化 (LQR のコスト、MPC の制約)</li>
   <li><b>推定:</b> 古典=使わないことが多い ／ 現代=<b>オブザーバ (Kalman)</b> で内部状態を推定</li>
   <li><b>向くケース:</b> 古典=SISO・低次・速い ／ 現代=MIMO・制約あり・推定要</li>
+  <li><b>現場では併用:</b> PID を下位、MPC や状態 FB を上位に組むのが普通</li>
 </ul>
 </div>
 <div class="box">
@@ -220,46 +219,6 @@ style: |
 - 古典/現代の分岐はいくつかあるが、覚えるべきは「モデリング視点」「設計可能性の指標」「合成方法」「推定の要否」の4つ。
 - 落とし穴は実機をやらないと気づきにくい。HIL は「実機の一歩手前で問題を顕在化させる」ための工程。
 - これを押さえてから Physical AI の話に入ると、「下層制御の責務が消えない」理由が腹落ちする。
--->
-
----
-
-## 古典制御 vs 現代制御
-
-<div class="cols">
-<div class="box">
-<h3>古典制御</h3>
-<ul class="small">
-  <li><b>変数領域:</b> <b>s 領域</b>（ラプラス・周波数）。微分方程式を手計算に乗せやすい形で扱う</li>
-  <li><b>着目点:</b> 入出力の<b>周波数応答</b>と<b>ループゲイン</b></li>
-  <li><b>表現:</b> 伝達関数 <code>G(s)</code>、ボード線図、根軌跡</li>
-  <li><b>設計の型:</b> ゲイン余裕・位相余裕、帯域、PID の位相進み・遅れ補償</li>
-  <li><b>独自の強み:</b> <b>安定余裕解析</b>（安定にどれだけ余裕があるかを見る）</li>
-  <li><b>得意:</b> SISO、実装現場でのチューニング、高速な低次サーボ</li>
-</ul>
-</div>
-<div class="box">
-<h3>現代制御</h3>
-<ul class="small">
-  <li><b>変数領域:</b> <b>t 領域</b>（時間領域の状態変数）。人間の直感と相性がよい</li>
-  <li><b>着目点:</b> <b>状態</b>とその時間発展（内部ダイナミクス）</li>
-  <li><b>表現:</b> 状態方程式、離散化、MIMO を行列でまとめて扱う</li>
-  <li><b>設計の型:</b> 極配置、LQR のコスト、MPC の制約・予測区間</li>
-  <li><b>得意:</b> MIMO、オブザーバ、制約付き最適化の明示</li>
-</ul>
-</div>
-</div>
-
-<div class="small box" style="margin-top: 14px;">
-古典＝悪・現代＝良ではない。前提 (モデル化可能・ほぼ LTI) が同じでも <b>設計の枠組みと規模が違う</b>だけ。産業では PID を下位、MPC や状態フィードバックを上位として<b>併用</b>するのが普通。<br>
-歴史的には、古典＝手計算で解ける枠組み、現代＝コンピュータ前提で拡張された側、という区分。
-</div>
-
-<!--
-話すポイント:
-- 違いは「周波数でループを見るか、状態とコストで閉ループを組むか」。
-- どちらもモデルに依存するが、現代制御の方が多変数・制約を素直に書ける。
-- ここでは Physical AI に入る前に、古典と現代の境界をはっきりさせる。
 -->
 
 ---
@@ -357,88 +316,6 @@ Physical AI は単一モデルではなく、<b>「VLM/ER + VLA + world model/si
 話すポイント:
 - 「事前学習 → 模倣 → SFT → RL」の順は LLM の RLHF と似ているが、データ源と責務分界が違う。
 - Stage 1 は基盤モデルベンダ、Stage 2-3 はアプリ側、Stage 4 は高 ROI 案件だけ。事業機会の分布もこの分界で決まる。
--->
-
----
-
-## データパイプライン
-
-<div class="cols">
-<div class="box">
-<b>6 つのデータソース</b>
-<ul class="small">
-  <li><b>teleop demo:</b> 人が VR/マスター装置でロボットを動かした記録 (Mobile ALOHA [21], LeRobot [23])</li>
-  <li><b>human / egocentric video:</b> 一人称動画 (Ego4D 等)</li>
-  <li><b>sim / synthetic:</b> Isaac Sim / <b>NVIDIA Cosmos</b> で生成 [14]</li>
-  <li><b>実機ログ:</b> デプロイ後の動作データ</li>
-  <li><b>失敗事例:</b> 事故・障害ケース (= 高価値データ)</li>
-  <li><b>安全評価セット:</b> <b>ASIMOV</b> 等の意味的安全ベンチ [24]</li>
-</ul>
-</div>
-<div class="box">
-<b>データフライホイール</b>
-<pre style="font-size:15px; line-height:1.3; background:#f1f5f9; padding:10px; border-radius:6px;">deploy
-   ↓
-log &amp; failure harvest
-   ↓
-relabel / curate
-   ↓
-batch re-train
-   ↓
-re-deploy</pre>
-<div class="small" style="margin-top:6px;"><b>常時オンライン継続学習は LLM でも Physical AI でも研究段階</b>。どちらも「ログを蓄積 → バッチ再学習」が主流で、<b>実機の物理リスクのぶん Physical AI はさらに慎重</b>。</div>
-</div>
-</div>
-
-<div class="small box" style="margin-top: 12px;">
-モデルの賢さ以上に、<b>データを集め・評価し・再投入するサイクルの質</b>が競争力を決める。制御設計で言う「同定・検証・HIL・実機ログ」が Physical AI では大規模化・自動化されたもの。
-</div>
-
-<!--
-話すポイント:
-- データソースが6種類あると明示する。各社とも「合成だけ」「teleop だけ」ではない。
-- データフライホイールは "deploy → log harvest → re-train" のバッチ型。LLM も実は同じで、常時オンライン学習は両者とも研究段階。
-- ここまで話すと、事業機会が「データ収集/合成・評価/安全監視・embodiment 統合・業務特化 post-train」に集まる理由が自然に導ける。
--->
-
----
-
-## オフライン学習 vs オンライン学習
-
-<div class="cols">
-<div class="box">
-<b>学習区分の整理</b>
-<ul class="small">
-  <li><b>Offline SL (模倣学習, BC):</b> 静的な教師データから学ぶ。<span class="accent">現行の主戦力</span></li>
-  <li><b>Offline RL:</b> 追加のオンライン収集なしで、静的データから方策を学ぶ (D4RL 定義)</li>
-  <li><b>Online RL:</b> 実機/シムで動かしながら試行錯誤で学ぶ。<span class="warn">現状は限定的</span></li>
-  <li><b>Continual / On-device 学習:</b> 稼働中に継続改善。<b>研究段階</b> (破滅的忘却・安全保証が未解決)</li>
-</ul>
-</div>
-<div class="box">
-<b>なぜ Online RL が限定的か</b>
-<ul class="small">
-  <li><b>安全:</b> 試行中に壊れる・人を傷つける恐れ</li>
-  <li><b>報酬設計:</b> タスクごとの設計コストが高い</li>
-  <li><b>試行コスト:</b> 実機の 1 エピソードが高価・時間がかかる</li>
-  <li><b>sample efficiency:</b> 必要サンプル数が非現実的</li>
-</ul>
-<div class="small" style="margin-top:4px;">→ 現在は「シムで事前学習＋実機で最小限」が現実解 (例: Figure の歩行 [17], π*0.6 [25])</div>
-</div>
-</div>
-
-<div class="small box" style="margin-top: 12px;">
-<b>⚠️ 誤解されやすい 3 点</b><br>
-1. <span class="warn">「Physical AI = RL」は誤り</span>。主流は <b>VLM 事前学習 + 模倣学習/SFT + 限定的 RL</b> の混成。<br>
-2. <span class="warn">「オフラインなら安全」は誤り</span>。データ偏り・OOD・ラベル漏れ・実装安全は別問題。<br>
-3. <span class="warn">「合成データが実機データを置き換える」は誤り</span>。実態は<b>補完関係</b>。各社とも実機データを捨てていない。
-</div>
-
-<!--
-話すポイント:
-- 「AI = RL」という直感は強いが、VLA 時代の主流は模倣学習 + SFT。RL は「最後の詰め」に限定されている。
-- オフライン/オンラインの区別は D4RL の定義に沿う。現場での online 学習はまだハードル高い。
-- 誤解3点は、事業観点でも設計観点でもミスリードを生むので、最初に潰しておく。
 -->
 
 ---
@@ -584,7 +461,7 @@ Physical AI は制御理論の**代替ではなく上位レイヤの拡張**。
 - **Physical AI**: 定義しきれない現実世界に、知覚・意味理解・適応を上乗せする
 
 <div class="box small">
-<b>新規事業の観点:</b> 狙い目は<b>人が状況判断していた部分</b>を機械にどこまで移せるか。最終的な安全・安定は引き続き制御理論が支える。
+<b>新規事業の観点:</b> 狙い目は<b>人が状況判断していた部分</b>を機械にどこまで移せるか。
 </div>
 
 <!--
@@ -612,6 +489,88 @@ Physical AI は制御理論の**代替ではなく上位レイヤの拡張**。
 <div class="small box" style="margin-top: 10px;">
 <b>注意:</b> ジャンルの境界は曖昧で、ここでは多くの現場感覚に近い整理として <b>controlabo「制御図鑑」</b>の切り方に寄せている。
 </div>
+
+---
+
+## Appendix: Physical AI のデータパイプライン
+
+<div class="cols">
+<div class="box">
+<b>6 つのデータソース</b>
+<ul class="small">
+  <li><b>teleop demo:</b> 人が VR/マスター装置でロボットを動かした記録 (Mobile ALOHA [21], LeRobot [23])</li>
+  <li><b>human / egocentric video:</b> 一人称動画 (Ego4D 等)</li>
+  <li><b>sim / synthetic:</b> Isaac Sim / <b>NVIDIA Cosmos</b> で生成 [14]</li>
+  <li><b>実機ログ:</b> デプロイ後の動作データ</li>
+  <li><b>失敗事例:</b> 事故・障害ケース (= 高価値データ)</li>
+  <li><b>安全評価セット:</b> <b>ASIMOV</b> 等の意味的安全ベンチ [24]</li>
+</ul>
+</div>
+<div class="box">
+<b>データフライホイール</b>
+<pre style="font-size:15px; line-height:1.3; background:#f1f5f9; padding:10px; border-radius:6px;">deploy
+   ↓
+log &amp; failure harvest
+   ↓
+relabel / curate
+   ↓
+batch re-train
+   ↓
+re-deploy</pre>
+</div>
+</div>
+
+<div class="small box" style="margin-top: 12px;">
+モデルの賢さ以上に、<b>データを集め・評価し・再投入するサイクルの質</b>が競争力を決める。制御設計で言う「同定・検証・HIL・実機ログ」が Physical AI では大規模化・自動化されたもの。
+</div>
+
+<!--
+話すポイント:
+- データソースが6種類あると明示する。各社とも「合成だけ」「teleop だけ」ではない。
+- データフライホイールは "deploy → log harvest → re-train" のバッチ型。LLM も実は同じで、常時オンライン学習は両者とも研究段階。
+- ここまで話すと、事業機会が「データ収集/合成・評価/安全監視・embodiment 統合・業務特化 post-train」に集まる理由が自然に導ける。
+-->
+
+---
+
+## Appendix: オフライン学習 vs オンライン学習
+
+<div class="cols">
+<div class="box">
+<b>学習区分の整理</b>
+<ul class="small">
+  <li><b>Offline SL (模倣学習, BC):</b> 静的な教師データから学ぶ。<span class="accent">現行の主戦力</span></li>
+  <li><b>Offline RL:</b> 追加のオンライン収集なしで、静的データから方策を学ぶ (D4RL 定義)</li>
+  <li><b>Online RL:</b> 実機/シムで動かしながら試行錯誤で学ぶ。<span class="warn">現状は限定的</span></li>
+  <li><b>Continual / On-device 学習:</b> 稼働中に継続改善。<b>研究段階</b> (破滅的忘却・安全保証が未解決)</li>
+</ul>
+</div>
+<div class="box">
+<b>なぜ Online RL が限定的か</b>
+<ul class="small">
+  <li><b>安全:</b> 試行中に壊れる・人を傷つける恐れ</li>
+  <li><b>報酬設計:</b> タスクごとの設計コストが高い</li>
+  <li><b>試行コスト:</b> 実機の 1 エピソードが高価・時間がかかる</li>
+  <li><b>sample efficiency:</b> 必要サンプル数が非現実的</li>
+</ul>
+<div class="small" style="margin-top:4px;">→ 現在は「シムで事前学習＋実機で最小限」が現実解 (例: Figure の歩行 [17], π*0.6 [25])</div>
+</div>
+</div>
+
+<div class="small box" style="margin-top: 12px;">
+<b>⚠️ 誤解されやすい 3 点</b><br>
+1. <span class="warn">「Physical AI = RL」は誤り</span>。主流は <b>VLM 事前学習 + 模倣学習/SFT + 限定的 RL</b> の混成。<br>
+2. <span class="warn">「オフラインなら安全」は誤り</span>。データ偏り・OOD・ラベル漏れ・実装安全は別問題。<br>
+3. <span class="warn">「合成データが実機データを置き換える」は誤り</span>。実態は<b>補完関係</b>。各社とも実機データを捨てていない。
+</div>
+
+<!--
+話すポイント:
+- 「AI = RL」という直感は強いが、VLA 時代の主流は模倣学習 + SFT。RL は「最後の詰め」に限定されている。
+- オフライン/オンラインの区別は D4RL の定義に沿う。現場での online 学習はまだハードル高い。
+- 誤解3点は、事業観点でも設計観点でもミスリードを生むので、最初に潰しておく。
+-->
+
 
 ---
 
